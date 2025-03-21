@@ -112,12 +112,10 @@ resource "aws_ecs_service" "main" {
   desired_count = var.min_task_count
   // set launch type
   launch_type = "FARGATE"
-
   // don't let outsider change task definition.
   lifecycle {
     ignore_changes = [task_definition]
   }
-
   // set the security groups and don't assign public ip
   network_configuration {
     // set the security group to service defined in security.tf
@@ -128,7 +126,6 @@ resource "aws_ecs_service" "main" {
     // no public ip assigned will use loadbalancer
     assign_public_ip = false
   }
-
   service_connect_configuration {
     enabled = var.service_connect_enabled
     # log_configuration = {}
@@ -143,17 +140,32 @@ resource "aws_ecs_service" "main" {
     }
   }
 
-  load_balancer {
-    target_group_arn = var.target_group_arn
-    # target_group_arn = aws_lb_target_group.main.id
-    container_name   = "${var.prefix}-${var.env}-${var.app_name}"
-    container_port   = var.app_port
+  // Dynamically create load balancer configuration blocks
+  dynamic "load_balancer" {
+    for_each = var.target_group_configs
+    content {
+      target_group_arn = load_balancer.value.target_group_arn
+      container_name   = load_balancer.value.container_name
+      container_port   = load_balancer.value.container_port
+    }
   }
 
-  depends_on = [
-    var.lb_listener_rule
-  ]
+  // For backward compatibility, add default target group if provided
+  dynamic "load_balancer" {
+    for_each = var.target_group_arn != "" ? [var.target_group_arn] : []
+    content {
+      target_group_arn = var.target_group_arn
+      container_name   = "${var.prefix}-${var.env}-${var.app_name}"
+      container_port   = var.app_port
+    }
+  }
 
+  // Combine both dependency approaches for backward compatibility
+  depends_on = concat(
+    var.lb_listener_rule != null ? [var.lb_listener_rule] : [],
+    var.lb_listener_rules
+  )
+  
   // add tags 
   tags = var.tags
 }

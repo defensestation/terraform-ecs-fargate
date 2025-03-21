@@ -230,11 +230,32 @@ variable "sc_ingress_port_override" {
   default = null
 }
 
+// Modified module variables
+variable "target_group_configs" {
+  description = "List of target group configurations containing target group ARN, container name, and container port"
+  type = list(object({
+    target_group_arn = string
+    container_name   = string
+    container_port   = number
+  }))
+  default = []
+}
+
+variable "lb_listener_rules" {
+  description = "List of load balancer listener rules that the service depends on"
+  type        = list(string)
+  default     = []
+}
+
+// Existing variables (for backward compatibility)
 variable "target_group_arn" {
-  type = string
-  description = "load balancer target group arn"
+  description = "ARN of the target group for the load balancer"
+  type        = string
+  default     = ""
 }
 
 variable "lb_listener_rule" {
-  description = "load balancer listener"
+  description = "Load balancer listener rule that the service depends on"
+  type        = any
+  default     = null
 }

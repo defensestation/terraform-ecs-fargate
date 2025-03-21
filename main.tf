@@ -145,8 +145,8 @@ resource "aws_ecs_service" "main" {
     for_each = var.target_group_configs
     content {
       target_group_arn = load_balancer.value.target_group_arn
-      container_name   = load_balancer.value.container_name
-      container_port   = load_balancer.value.container_port
+      container_name   = "${var.prefix}-${var.env}-${var.app_name}"
+      container_port   = var.app_port
     }
   }
 

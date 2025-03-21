@@ -241,9 +241,9 @@ variable "target_group_configs" {
   default = []
 }
 
-variable "lb_listener_rules" {
-  description = "List of load balancer listener rules that the service depends on"
-  type        = list(string)
+variable "depends_on_resources" {
+  description = "List of resources the ECS service depends on (including listener rules)"
+  type        = list(any)
   default     = []
 }
 

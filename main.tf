@@ -161,10 +161,7 @@ resource "aws_ecs_service" "main" {
   }
 
   // Combine both dependency approaches for backward compatibility
-  depends_on = concat(
-    var.lb_listener_rule != null ? [var.lb_listener_rule] : [],
-    var.lb_listener_rules
-  )
+  depends_on = var.depends_on_resources
   
   // add tags 
   tags = var.tags

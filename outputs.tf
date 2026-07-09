@@ -29,5 +29,5 @@ output "ecr_repo_name" {
 
 output "ecs_task_security_group_ids" {
   description = "ECS task security group ids"
-  value = aws_security_group.id
+  value = aws_security_group.ecs_tasks.id
 }

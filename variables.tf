@@ -186,6 +186,24 @@ variable "xray" {
   default     = false
 }
 
+// additional sidecar containers appended to the task definition
+//
+// Each element is a full ECS container definition object. It is rendered with
+// jsonencode and appended after the app container (and after the xray daemon
+// when enabled), so callers can add sidecars without the module needing to know
+// anything about them.
+//
+// Mark sidecars "essential" = false unless the app genuinely cannot serve
+// without them: an essential container exiting stops the whole task.
+//
+// Sidecars share the task's fargate_cpu / fargate_memory budget — raise those
+// when adding one.
+variable "extra_containers" {
+  type        = any
+  description = "list of additional ECS container definition objects to append to the task definition"
+  default     = []
+}
+
 // tags
 variable "tags" {
   type        = map(string)

@@ -10,6 +10,11 @@ This file will create following:
 
 locals {
   env = concat(var.secrets, var.parameters)
+
+  // Render each extra container as a JSON object prefixed with a comma, so it
+  // appends cleanly after the app container in service_tmp.json.tpl — the same
+  // shape the xray template uses.
+  extra_containers = join("", [for container in var.extra_containers : ",${jsonencode(container)}"])
 }
 
 // create aws_ecs_cluster with input name
@@ -74,6 +79,7 @@ data "template_file" "service_tmp" {
     env                 = var.env
     secrets             = join(",", data.template_file.env_tmp.*.rendered)
     xray                = var.xray ? data.template_file.xray.rendered : ""
+    extra_containers    = local.extra_containers
   }
 }
 

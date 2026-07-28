@@ -42,4 +42,5 @@
     ]
   }
   ${xray}
+  ${extra_containers}
 ]
